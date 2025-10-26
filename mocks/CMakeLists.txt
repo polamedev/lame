@@ -56,6 +56,7 @@ set_target_properties(
 target_sources(lame-mocks 
     PRIVATE 
     src/PinMock.cpp
+    src/timeServiceMock.cpp
 )
 
 

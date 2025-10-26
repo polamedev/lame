@@ -19,8 +19,9 @@ enable_testing()
 
 add_executable(lame-tests 
     allTests.cpp
-    utils/EventTest.cpp
     device/LedTest.cpp
+    utils/EventTest.cpp
+    utils/SoftTimerTest.cpp
 )
-target_link_libraries(lame-tests   lame::lame CppUTest::CppUTest CppUTest::CppUTestExt)
-add_test(lame-tests   lame-tests )
+target_link_libraries(lame-tests lame::lame lame::mocks CppUTest::CppUTest CppUTest::CppUTestExt)
+add_test(lame-tests lame-tests)
