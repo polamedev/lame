@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.21)
 
 # Основные настройки проекта
 project(
-    lame
+    lame-mocks
     VERSION 1.0.0
     DESCRIPTION
-        "Embedded lame lib"
-    LANGUAGES C
+        "Lame mocks lib"
+    LANGUAGES C CXX
 )
 
 # Определяем является ли текущий проектом верхнего уровня. Для fetch проектов, gitsubmodule или просто вложенных проектов это неверно
@@ -18,9 +18,7 @@ project(
 # -----------------------------------------------------------------------------------------------------------------------------------
 
 # Опции сборки
-option(LAME_BUILD_TESTS    "Build lame::hardware all tests"         OFF)  # Нужно ли собирать тесты для библиотеки
-# option(Lame_Hardware_BUILD_EXAMPLES "Build lame::hardware examples"      OFF)  # Нужно ли собирать примеры
-# option(Lame_Hardware_BUILD_DOCS     "Build lame::hardware documentation" OFF)  # Нужно ли собирать документацию
+option(LAME_MOCKS_BUILD_TESTS    "Build tests lame::mocks lib"         OFF)  # Нужно ли собирать тесты для библиотеки
 
 # Установка типа сборки
 if(NOT CMAKE_BUILD_TYPE)
@@ -34,36 +32,38 @@ endif()
 # Добавление суфикса в имя дебажной библиотеки, нужно чтобы установить различия в названии. Возможно от этого стоит отказаться
 set(CMAKE_DEBUG_POSTFIX -dev)
 
+# Используется фреймворк CppUTest для тестирования
+find_package(CppUTest REQUIRED)
+
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Настройка таргета библиотеки
 # -----------------------------------------------------------------------------------------------------------------------------------
 
 # Добавление библиотеки
-add_library(lame STATIC)
+add_library(lame-mocks STATIC)
 
 # Добавляем alias для библиотеки, полезно для избежания конфликта имен
-add_library(lame::lame ALIAS lame)
+add_library(lame::mocks ALIAS lame-mocks)
 
 # VERSION - Устанавливаем версию библиотеки из версии проекта
 # SOVERSION - Версия совместимости - определяет версию API стоит изменять, когда меняется API, поведение или используемый интерфейс
 set_target_properties(
-    lame
+    lame-mocks
     PROPERTIES VERSION ${PROJECT_VERSION}
                SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-target_sources(lame
+target_sources(lame-mocks 
     PRIVATE 
-    src/utils/Event.c
-    include/lame/utils/Event.h
+    src/PinMock.cpp
 )
 
 
-target_include_directories(lame
+target_include_directories(lame-mocks
     # Пути включения доступные только библиотеке
     PRIVATE 
     src 
-    include/lame/utils
+    include/lame/mocks
 
     # Пути включения доступные самой библиотеке и пользователям
     PUBLIC
@@ -74,12 +74,19 @@ target_include_directories(lame
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+target_link_libraries(lame-mocks 
+    PUBLIC 
+    lame::lame 
+    PRIVATE
+    CppUTest::CppUTest
+    CppUTest::CppUTestExt
+)
+
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Добавление других таргетов
 # -----------------------------------------------------------------------------------------------------------------------------------
 
-if(LAME_BUILD_TESTS)
+if(LAME_MOCKS_BUILD_TESTS)
     enable_testing()
-    add_subdirectory(mocks)
     add_subdirectory(tests)
 endif()
