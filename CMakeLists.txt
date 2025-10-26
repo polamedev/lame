@@ -80,5 +80,5 @@ target_include_directories(lame
 
 if(LAME_BUILD_TESTS)
     enable_testing()
-    # add_subdirectory(tests)
+    add_subdirectory(tests)
 endif()
