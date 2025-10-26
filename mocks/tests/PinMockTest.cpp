@@ -1,4 +1,4 @@
-#include <lame/PinMock.hpp>
+#include <lame/mocks/PinMock.hpp>
 
 #include <CppUTest/TestHarness.h>
 

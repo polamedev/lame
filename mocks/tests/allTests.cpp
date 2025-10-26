@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    printf("\nAll Drivers Mocks Tests");
+    printf("\nRun all test for lame::mocks lib ");
 
     MockSupportPlugin mockPlugin;
 

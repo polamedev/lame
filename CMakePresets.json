@@ -12,7 +12,8 @@
       "binaryDir": "${sourceDir}/_build",
       "hidden": true,
       "cacheVariables": {
-        "LAME_BUILD_TESTS": "ON"
+        "LAME_BUILD_TESTS": "ON",
+        "LAME_MOCKS_BUILD_TESTS": "ON" 
       }
     },
     {
