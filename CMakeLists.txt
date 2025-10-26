@@ -57,6 +57,8 @@ target_sources(lame
     src/utils/Event.c
     include/lame/utils/Event.h
 
+    src/utils/SoftTimer.c
+
     src/device/Led.c
 )
 
@@ -65,8 +67,9 @@ target_include_directories(lame
     # Пути включения доступные только библиотеке
     PRIVATE 
     src 
-    include/lame/utils
     include/lame/device
+    include/lame/drivers
+    include/lame/utils
 
     # Пути включения доступные самой библиотеке и пользователям
     PUBLIC
