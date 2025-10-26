@@ -56,6 +56,8 @@ target_sources(lame
     PRIVATE 
     src/utils/Event.c
     include/lame/utils/Event.h
+
+    src/device/Led.c
 )
 
 
@@ -64,6 +66,7 @@ target_include_directories(lame
     PRIVATE 
     src 
     include/lame/utils
+    include/lame/device
 
     # Пути включения доступные самой библиотеке и пользователям
     PUBLIC

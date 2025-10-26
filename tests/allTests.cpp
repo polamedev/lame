@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    printf("\nRun all lame lib tests");
+    printf("\nRun all tests for lame lib ");
 
     MockSupportPlugin mockPlugin;
 

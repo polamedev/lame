@@ -20,6 +20,7 @@ enable_testing()
 add_executable(lame-tests 
     allTests.cpp
     utils/EventTest.cpp
+    device/LedTest.cpp
 )
 target_link_libraries(lame-tests   lame::lame CppUTest::CppUTest CppUTest::CppUTestExt)
 add_test(lame-tests   lame-tests )
