@@ -2,19 +2,18 @@
 
 #include <CppUTest/TestHarness.h>
 
-
-TEST_GROUP(LedTests) {
-
-LAME_Led led;
-
-void setup()
+TEST_GROUP(LedTests)
 {
-}
 
-void teardown()
-{
-}
+    Led led;
 
+    void setup()
+    {
+    }
+
+    void teardown()
+    {
+    }
 };
 
 TEST(LedTests, clearAfterCreate)

@@ -4,49 +4,49 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-struct LAME_Pin_Impl {
-    MockSupport   *mock;
-    LAME_Pin_State currentState;
+struct Pin_Impl {
+    MockSupport *mock;
+    Pin_State    currentState;
 };
 
 extern "C" {
 
-void LAME_Pin_Write(LAME_Pin self, LAME_Pin_State state)
+void Pin_Write(Pin self, Pin_State state)
 {
-    self->mock->actualCall("LAME_Pin_Write").withIntParameter("state", state);
+    self->mock->actualCall("Pin_Write").withIntParameter("state", state);
     self->currentState = state;
 }
 
-LAME_Pin_State LAME_Pin_Read(const LAME_Pin self)
+Pin_State Pin_Read(const Pin self)
 {
-    self->mock->actualCall("LAME_Pin_Read");
-    return (LAME_Pin_State)self->mock->returnValue().getIntValue();
+    self->mock->actualCall("Pin_Read");
+    return (Pin_State)self->mock->returnValue().getIntValue();
 }
 
-void LAME_Pin_Toggle(LAME_Pin self)
+void Pin_Toggle(Pin self)
 {
-    LAME_Pin_Write(self, self->currentState == LAME_Pin_State_Hight ? LAME_Pin_State_Low : LAME_Pin_State_Hight);
+    Pin_Write(self, self->currentState == Pin_State_Hight ? Pin_State_Low : Pin_State_Hight);
 }
 }
 
-LAME_Pin LAME_PinMock_create(const char *mockName)
+Pin PinMock_create(const char *mockName)
 {
-    LAME_Pin pin = (LAME_Pin)calloc(1, sizeof(LAME_Pin_Impl));
-    pin->mock    = &mock(mockName);
+    Pin pin   = (Pin)calloc(1, sizeof(Pin_Impl));
+    pin->mock = &mock(mockName);
     return pin;
 }
 
-void LAME_PinMock_destroy(LAME_Pin self)
+void PinMock_destroy(Pin self)
 {
     free(self);
 }
 
-void LAME_PinMock_ExceptRead(LAME_Pin self, LAME_Pin_State state, int amount)
+void PinMock_ExceptRead(Pin self, Pin_State state, int amount)
 {
-    self->mock->expectNCalls(amount, "LAME_Pin_Read").andReturnValue((int)state);
+    self->mock->expectNCalls(amount, "Pin_Read").andReturnValue((int)state);
 }
 
-void LAME_PinMock_ExceptWrite(LAME_Pin self, LAME_Pin_State state, int amount)
+void PinMock_ExceptWrite(Pin self, Pin_State state, int amount)
 {
-    self->mock->expectNCalls(amount, "LAME_Pin_Write").withIntParameter("state", state);
+    self->mock->expectNCalls(amount, "Pin_Write").withIntParameter("state", state);
 }

@@ -6,16 +6,16 @@ extern "C" {
 
 #include <stdbool.h>
 
-typedef enum LAME_Pin_State {
-    LAME_Pin_State_Hight,
-    LAME_Pin_State_Low
-} LAME_Pin_State;
+typedef enum Pin_State {
+    Pin_State_Hight,
+    Pin_State_Low
+} Pin_State;
 
-typedef struct LAME_Pin_Impl *LAME_Pin;
+typedef struct Pin_Impl *Pin;
 
-LAME_Pin_State LAME_Pin_Read(const LAME_Pin handle);
-void           LAME_Pin_Write(LAME_Pin handle, LAME_Pin_State state);
-void           LAME_Pin_Toggle(LAME_Pin handle);
+Pin_State Pin_Read(const Pin handle);
+void      Pin_Write(Pin handle, Pin_State state);
+void      Pin_Toggle(Pin handle);
 
 #ifdef __cplusplus
 }

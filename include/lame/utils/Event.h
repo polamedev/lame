@@ -6,13 +6,13 @@ extern "C" {
 
 #include <stdbool.h>
 
-typedef bool LAME_Event;
+typedef bool Event;
 
 /**
  * @brief  Инициализация события
  * @param  event: дескриптор события
  */
-void LAME_Event_Init(LAME_Event *event);
+void Event_Init(Event *event);
 
 /**
  * @brief  Получить событие, событие сбросится, если оно произошло
@@ -20,7 +20,7 @@ void LAME_Event_Init(LAME_Event *event);
  * @return true - событие произошло
  * @return false - событие не произошло
  */
-bool LAME_Event_Take(LAME_Event *event);
+bool Event_Take(Event *event);
 
 /**
  * @brief  Проверить событие
@@ -28,19 +28,19 @@ bool LAME_Event_Take(LAME_Event *event);
  * @return true - событие произошло
  * @return false - событие не произошло
  */
-bool LAME_Event_Check(const LAME_Event *event);
+bool Event_Check(const Event *event);
 
 /**
  * @brief  Установить событие
  * @param  event: дескриптор события
  */
-void LAME_Event_Set(LAME_Event *event);
+void Event_Set(Event *event);
 
 /**
  * @brief  Сбросить событие
  * @param  event: дескриптор события
  */
-void LAME_Event_Clear(LAME_Event *event);
+void Event_Clear(Event *event);
 
 #ifdef __cplusplus
 }

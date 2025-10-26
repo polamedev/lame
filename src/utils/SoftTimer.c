@@ -5,13 +5,13 @@
 #include <assert.h>
 #include <stddef.h>
 
-bool LAME_SoftTimer_Occur(LAME_SoftTimer *timer)
+bool SoftTimer_Occur(SoftTimer *timer)
 {
-    if (timer->state == LAME_SoftTimer_StateStop) {
+    if (timer->state == SoftTimer_StateStop) {
         return false;
     }
 
-    if (timer->state == LAME_SoftTimer_StateElapsedComplete) {
+    if (timer->state == SoftTimer_StateElapsedComplete) {
         return true;
     }
 
@@ -20,10 +20,10 @@ bool LAME_SoftTimer_Occur(LAME_SoftTimer *timer)
     /* Таймер прошел. Переполнение должно само устраниться */
     unsigned dt = currentTime - timer->startTime;
     if (dt >= timer->period) {
-        if (timer->mode == LAME_SoftTimer_ModePeriodic) {
+        if (timer->mode == SoftTimer_ModePeriodic) {
             timer->startTime = currentTime;
         }
-        else if (timer->mode == LAME_SoftTimer_ModeHardPeriodic) {
+        else if (timer->mode == SoftTimer_ModeHardPeriodic) {
             if (dt > timer->period * 2) {
                 timer->startTime = currentTime;
             }
@@ -32,7 +32,7 @@ bool LAME_SoftTimer_Occur(LAME_SoftTimer *timer)
             }
         }
         else {
-            timer->state = LAME_SoftTimer_StateElapsedComplete;
+            timer->state = SoftTimer_StateElapsedComplete;
         }
         return true;
     }
@@ -40,43 +40,43 @@ bool LAME_SoftTimer_Occur(LAME_SoftTimer *timer)
     return false;
 }
 
-void LAME_SoftTimer_Init(LAME_SoftTimer *timer, LAME_SoftTimer_Mode mode, unsigned period)
+void SoftTimer_Init(SoftTimer *timer, SoftTimer_Mode mode, unsigned period)
 {
     timer->period = period;
     timer->mode   = mode;
-    timer->state  = LAME_SoftTimer_StateStop;
+    timer->state  = SoftTimer_StateStop;
 }
 
-LAME_SoftTimer_Mode LAME_SoftTimer_GetMode(const LAME_SoftTimer *timer)
+SoftTimer_Mode SoftTimer_GetMode(const SoftTimer *timer)
 {
     return timer->mode;
 }
 
-LAME_SoftTimer_State LAME_SoftTimer_GetState(const LAME_SoftTimer *timer)
+SoftTimer_State SoftTimer_GetState(const SoftTimer *timer)
 {
     return timer->state;
 }
 
-void LAME_SoftTimer_Start(LAME_SoftTimer *timer)
+void SoftTimer_Start(SoftTimer *timer)
 {
-    if (timer->state == LAME_SoftTimer_StateRun) {
+    if (timer->state == SoftTimer_StateRun) {
         return;
     }
-    timer->state     = LAME_SoftTimer_StateRun;
+    timer->state     = SoftTimer_StateRun;
     timer->startTime = millis();
 }
 
-void LAME_SoftTimer_Stop(LAME_SoftTimer *timer)
+void SoftTimer_Stop(SoftTimer *timer)
 {
-    timer->state = LAME_SoftTimer_StateStop;
+    timer->state = SoftTimer_StateStop;
 }
 
-void LAME_SoftTimer_SetPeriod(LAME_SoftTimer *timer, unsigned period)
+void SoftTimer_SetPeriod(SoftTimer *timer, unsigned period)
 {
     timer->period = period;
 }
 
-unsigned LAME_SoftTimer_GetPeriod(const LAME_SoftTimer *timer)
+unsigned SoftTimer_GetPeriod(const SoftTimer *timer)
 {
     return timer->period;
 }

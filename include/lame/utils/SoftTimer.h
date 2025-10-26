@@ -7,85 +7,85 @@ extern "C" {
 #include <stdbool.h>
 
 typedef enum {
-    LAME_SoftTimer_ModePeriodic,     // Режим периодического срабатывания
-    LAME_SoftTimer_ModeHardPeriodic, // Режим жесткого периодического срабатывания, срабатывания будут происходить независимо от проверки LAME_SoftTimer_Occur
-    LAME_SoftTimer_ModeElapsed,      // Режим срабатывания один раз
-} LAME_SoftTimer_Mode;
+    SoftTimer_ModePeriodic,     // Режим периодического срабатывания
+    SoftTimer_ModeHardPeriodic, // Режим жесткого периодического срабатывания, срабатывания будут происходить независимо от проверки SoftTimer_Occur
+    SoftTimer_ModeElapsed,      // Режим срабатывания один раз
+} SoftTimer_Mode;
 
 typedef enum {
-    LAME_SoftTimer_StateStop,            // Таймер остановлен
-    LAME_SoftTimer_StateRun,             // Таймер запущен
-    LAME_SoftTimer_StateElapsedComplete, // Таймер завершен в режим elapsed
-} LAME_SoftTimer_State;
+    SoftTimer_StateStop,            // Таймер остановлен
+    SoftTimer_StateRun,             // Таймер запущен
+    SoftTimer_StateElapsedComplete, // Таймер завершен в режим elapsed
+} SoftTimer_State;
 
-typedef struct LAME_SoftTimer {
-    unsigned             startTime; // Начальное время старта
-    unsigned             period;    // Период истечения таймера
-    LAME_SoftTimer_Mode  mode;
-    LAME_SoftTimer_State state;
-} LAME_SoftTimer;
+typedef struct SoftTimer {
+    unsigned        startTime; // Начальное время старта
+    unsigned        period;    // Период истечения таймера
+    SoftTimer_Mode  mode;
+    SoftTimer_State state;
+} SoftTimer;
 
-typedef LAME_SoftTimer LAME_SoftTimer;
+typedef SoftTimer SoftTimer;
 
-// void LAME_SoftTimer_SetMillisSource(unsigned (*funcSource)());
+// void SoftTimer_SetMillisSource(unsigned (*funcSource)());
 
 /**
  * @brief  Проверить срабатывание таймера
  * @param  timer: Дескриптор таймера
  * @return true - таймер сработал, false таймер не сработал или выключен
  */
-bool LAME_SoftTimer_Occur(LAME_SoftTimer *timer);
+bool SoftTimer_Occur(SoftTimer *timer);
 
 /**
  * @brief  Инициализация таймера
  * @param  timer:  Дескриптор таймера
- * @param  mode:   Режим работы таймера - LAME_SoftTimer_Mode
+ * @param  mode:   Режим работы таймера - SoftTimer_Mode
  * @param  period: Период срабатывания таймера, или таймаут для режима elapsed
  */
-void LAME_SoftTimer_Init(LAME_SoftTimer *timer, LAME_SoftTimer_Mode mode, unsigned period);
+void SoftTimer_Init(SoftTimer *timer, SoftTimer_Mode mode, unsigned period);
 
 /**
  * @brief  Получить режим таймера
  * @param  timer: Дескриптор таймера
  * @return Режим таймера
  */
-LAME_SoftTimer_Mode LAME_SoftTimer_GetMode(const LAME_SoftTimer *timer);
+SoftTimer_Mode SoftTimer_GetMode(const SoftTimer *timer);
 
 /**
  * @brief  Получить состояние таймера
  * @param  timer: Дескриптор таймера
  * @return Состояние таймера:
- *           - LAME_SoftTimer_StateStop - Таймер остановлен
- *           - LAME_SoftTimer_StateRun - Таймер запущен
- *           - LAME_SoftTimer_StateElapsedComplete - Таймер завершен в режим elapsed
+ *           - SoftTimer_StateStop - Таймер остановлен
+ *           - SoftTimer_StateRun - Таймер запущен
+ *           - SoftTimer_StateElapsedComplete - Таймер завершен в режим elapsed
  */
-LAME_SoftTimer_State LAME_SoftTimer_GetState(const LAME_SoftTimer *timer);
+SoftTimer_State SoftTimer_GetState(const SoftTimer *timer);
 
 /**
  * @brief  Запустить таймер
  * @param  timer: Дескриптор таймера
  */
-void LAME_SoftTimer_Start(LAME_SoftTimer *timer);
+void SoftTimer_Start(SoftTimer *timer);
 
 /**
  * @brief  Остановить таймер
  * @param  timer: Дескриптор таймера
  */
-void LAME_SoftTimer_Stop(LAME_SoftTimer *timer);
+void SoftTimer_Stop(SoftTimer *timer);
 
 /**
  * @brief  Установить период или таймаут таймера
  * @param  timer:  Дескриптор таймера
  * @param  period: Период или таймаут таймера
  */
-void LAME_SoftTimer_SetPeriod(LAME_SoftTimer *timer, unsigned period);
+void SoftTimer_SetPeriod(SoftTimer *timer, unsigned period);
 
 /**
  * @brief  Получить период или таймаут таймера
  * @param  timer: Дескриптор таймера
  * @return Период или таймаут таймера
  */
-unsigned LAME_SoftTimer_GetPeriod(const LAME_SoftTimer *timer);
+unsigned SoftTimer_GetPeriod(const SoftTimer *timer);
 
 #ifdef __cplusplus
 }

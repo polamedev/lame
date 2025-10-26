@@ -4,29 +4,29 @@
 
 #include <stdbool.h>
 
-typedef struct LAME_Led_Impl *LAME_Led;
+typedef struct Led_Impl *Led;
 
 /**
  * @brief  Создать диод
  * @param  pin: Дескриптор пина, должен быть всегда действителен
  * @param  activeLow: Активное положение - низкое
  * @param  blinkCount: Число миганий
- * @return LAME_Led - Дескриптор светодиода
+ * @return Led - Дескриптор светодиода
  */
-LAME_Led LAME_Led_Create(LAME_Pin pin, bool activeLow, unsigned blinkCount);
+Led Led_Create(Pin pin, bool activeLow, unsigned blinkCount);
 
 /**
  * @brief  Задача управления светодиодами
  */
-void LAME_Led_Task();
+void Led_Task();
 
 /**
  * @brief  Установить количество миганий
  * @param  led: Дескриптор светодиода
  * @param  blinkCount: Количество миганий
  */
-void LAME_Led_SetBlinkCount(LAME_Led led, unsigned blinkCount);
+void Led_SetBlinkCount(Led led, unsigned blinkCount);
 
 // TODO реализовать прямое управление диодом
-void LAME_Led_SetActive(LAME_Led led, bool activeLow);
-bool LAME_Led_GetActive(const LAME_Led led);
+void Led_SetActive(Led led, bool activeLow);
+bool Led_GetActive(const Led led);
