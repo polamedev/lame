@@ -1,17 +1,18 @@
 #include "Led.h"
 
+// TODO
 // #include <lame_config.h>
 
-// #include <lame/SoftTimer.h>
+#include <lame/utils/SoftTimer.h>
 
 #include <stddef.h>
 
 typedef struct Led_Impl {
-    Pin      pin;
-    bool     activeLow;
-    unsigned blinkCount;
-    unsigned currentCount;
-    // SoftTimer timer;
+    Pin       pin;
+    bool      activeLow;
+    unsigned  blinkCount;
+    unsigned  currentCount;
+    SoftTimer timer;
 } Led_Impl;
 
 // TODO LEDS_QTY задавать из конфига
@@ -20,13 +21,13 @@ typedef struct Led_Impl {
 static Led_Impl leds[LEDS_QTY];
 static size_t   freeLed = 0;
 
-// const mSec blinkTime = 100;
+const unsigned blinkTime = 100;
 
 static void Led_UnitTask(Led led)
 {
-    // if (!SoftTimer_Occur(&led->timer)) {
-    //     return;
-    // }
+    if (!SoftTimer_Occur(&led->timer)) {
+        return;
+    }
 
     if (led->currentCount % 2 == 0) {
         Led_SetActive(led, true);
@@ -39,10 +40,10 @@ static void Led_UnitTask(Led led)
 
     if (led->currentCount >= led->blinkCount) {
         led->currentCount = 0;
-        // SoftTimer_SetPeriod(&led->timer, blinkTime * 5);
+        SoftTimer_SetPeriod(&led->timer, blinkTime * 5);
     }
     else {
-        // SoftTimer_SetPeriod(&led->timer, blinkTime);
+        SoftTimer_SetPeriod(&led->timer, blinkTime);
     }
 }
 
@@ -61,8 +62,8 @@ Led Led_Create(Pin pin, bool activeLow, unsigned blinkCount)
 
     Led_SetActive(led, activeLow);
 
-    // SoftTimer_Init(&led->timer, SoftTimer_ModePeriodic, blinkTime);
-    // SoftTimer_Start(&led->timer);
+    SoftTimer_Init(&led->timer, SoftTimer_ModePeriodic, blinkTime);
+    SoftTimer_Start(&led->timer);
 
     return led;
 }
@@ -80,18 +81,16 @@ void Led_SetActive(Led led, bool active)
         active = !active;
     }
 
-    // Pin_SetActive(led->pin, active);
+    Pin_Write(led->pin, active);
 }
 
 bool Led_GetActive(const Led led)
 {
-    // bool active = Pin_GetActive(led->pin);
-    // if (led->activeLow) {
-    //     active = !active;
-    // }
-    // return active;
-
-    return true;
+    bool active = Pin_Read(led->pin);
+    if (led->activeLow) {
+        active = !active;
+    }
+    return active;
 }
 
 void Led_SetBlinkCount(Led led, unsigned blinkCount)
