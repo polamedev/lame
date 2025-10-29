@@ -24,30 +24,6 @@ static size_t   freeLed = 0;
 
 const unsigned blinkTime = 100;
 
-static void Led_UnitTask(Led led)
-{
-    if (!SoftTimer_Occur(&led->timer)) {
-        return;
-    }
-
-    if (led->currentCount % 2 == 0) {
-        Led_Write(led, true);
-    }
-    else {
-        Led_Write(led, false);
-    }
-
-    led->currentCount++;
-
-    if (led->currentCount >= led->blinkCount) {
-        led->currentCount = 0;
-        SoftTimer_SetPeriod(&led->timer, blinkTime * 5);
-    }
-    else {
-        SoftTimer_SetPeriod(&led->timer, blinkTime);
-    }
-}
-
 Led Led_Create(Pin pin, bool activeLow)
 {
     if (freeLed == LEDS_QTY) {
@@ -65,7 +41,6 @@ Led Led_Create(Pin pin, bool activeLow)
     Led_Write(led, activeLow);
 
     SoftTimer_Init(&led->timer, SoftTimer_ModePeriodic, blinkTime);
-    SoftTimer_Start(&led->timer);
 
     return led;
 }
@@ -73,13 +48,6 @@ Led Led_Create(Pin pin, bool activeLow)
 Led Led_Destroy(Led self)
 {
     freeLed--;
-}
-
-void Led_Task()
-{
-    for (size_t i = 0; i < freeLed; ++i) {
-        Led_UnitTask(&leds[i]);
-    }
 }
 
 bool Led_Read(const Led led)
@@ -105,6 +73,42 @@ void Led_Toggle(Led led)
     else {
         Led_Write(led, true);
     }
+}
+
+static void Led_UnitTask(Led led)
+{
+    if (!SoftTimer_Occur(&led->timer)) {
+        return;
+    }
+
+    if (led->currentCount % 2 == 0) {
+        Led_Write(led, true);
+    }
+    else {
+        Led_Write(led, false);
+    }
+
+    led->currentCount++;
+
+    if (led->currentCount >= led->blinkCount) {
+        led->currentCount = 0;
+        SoftTimer_SetPeriod(&led->timer, blinkTime * 5);
+    }
+    else {
+        SoftTimer_SetPeriod(&led->timer, blinkTime);
+    }
+}
+
+void Led_Task()
+{
+    for (size_t i = 0; i < freeLed; ++i) {
+        Led_UnitTask(&leds[i]);
+    }
+}
+
+void Led_StartBlink(Led led)
+{
+    
 }
 
 void Led_SetBlinkCount(Led led, unsigned blinkCount)

@@ -20,18 +20,6 @@ Led Led_Create(Pin pin, bool activeLow);
 
 Led Led_Destroy(Led);
 
-
-/**
- * @brief  Задача управления светодиодами
- */
-void Led_Task();
-
-/**
- * @brief  Установить количество миганий
- * @param  blinkCount: Количество миганий
- */
-void Led_SetBlinkCount(Led led, unsigned blinkCount);
-
 /**
  * @brief  Прочитать логическое состояние
  * @return true - Диод включен 
@@ -52,6 +40,19 @@ void Led_Toggle(Led);
 
 // TODO Сделать поддержку следующих функций   activeLow: Активное положение - низкое ; blinkCount: Число миганий
 
+
+/**
+ * @brief  Задача управления светодиодами
+ */
+void Led_Task();
+
+void Led_StartBlink(Led);
+
+/**
+ * @brief  Установить количество миганий
+ * @param  blinkCount: Количество миганий
+ */
+void Led_SetBlinkCount(Led led, unsigned blinkCount);
 
 #ifdef __cplusplus
 }
