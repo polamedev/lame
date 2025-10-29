@@ -28,25 +28,25 @@ void teardown()
 
 TEST(PinMockSpy, readPinAfterCreate)
 {
-    CHECK_TRUE(Pin_Read(pin) == Pin_State_Low);
+    CHECK_TRUE(Pin_Read(pin) == false);
 }
 
 TEST(PinMockSpy, writeLowPin)
 {
-    Pin_Write(pin, Pin_State_Low);
-    CHECK_TRUE(Pin_Read(pin) == Pin_State_Low);
+    Pin_Write(pin, false);
+    CHECK_TRUE(Pin_Read(pin) == false);
 }
 
 TEST(PinMockSpy, writeHightPin)
 {
-    Pin_Write(pin, Pin_State_Hight);
-    CHECK_TRUE(Pin_Read(pin) == Pin_State_Hight);
+    Pin_Write(pin, true);
+    CHECK_TRUE(Pin_Read(pin) == true);
 }
 
 TEST(PinMockSpy, toggle)
 {
     Pin_Toggle(pin);
-    CHECK_TRUE(Pin_Read(pin) == Pin_State_Hight);
+    CHECK_TRUE(Pin_Read(pin) == true);
     Pin_Toggle(pin);
-    CHECK_TRUE(Pin_Read(pin) == Pin_State_Low);
+    CHECK_TRUE(Pin_Read(pin) == false);
 }

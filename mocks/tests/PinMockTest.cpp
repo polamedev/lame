@@ -35,28 +35,28 @@ TEST(PinMock, memoryLeak)
 
 TEST(PinMock, exceptReadHight)
 {
-    PinMock_ExceptRead(pin, Pin_State_Hight);
-    Pin_State state = Pin_Read(pin);
-    CHECK_TRUE(state == Pin_State_Hight);
+    PinMock_ExceptRead(pin, true);
+    bool state = Pin_Read(pin);
+    CHECK_TRUE(state == true);
 }
 
 TEST(PinMock, exceptReadLow)
 {
-    PinMock_ExceptRead(pin, Pin_State_Low);
-    Pin_State state = Pin_Read(pin);
-    CHECK_TRUE(state == Pin_State_Low);
+    PinMock_ExceptRead(pin, false);
+    bool state = Pin_Read(pin);
+    CHECK_TRUE(state == false);
 }
 
 TEST(PinMock, exceptWrite)
 {
-    PinMock_ExceptWrite(pin, Pin_State_Low);
-    Pin_Write(pin, Pin_State_Low);
+    PinMock_ExceptWrite(pin, false);
+    Pin_Write(pin, false);
 }
 
 TEST(PinMock, checkToggle)
 {
-    PinMock_ExceptWrite(pin, Pin_State_Hight);
-    PinMock_ExceptWrite(pin, Pin_State_Low);
+    PinMock_ExceptWrite(pin, true);
+    PinMock_ExceptWrite(pin, false);
     Pin_Toggle(pin);
     Pin_Toggle(pin);
 }

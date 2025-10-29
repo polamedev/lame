@@ -48,7 +48,7 @@ static void Led_UnitTask(Led led)
     }
 }
 
-Led Led_Create(Pin pin, bool activeLow, unsigned blinkCount)
+Led Led_Create(Pin pin, bool activeLow)
 {
     if (freeLed == LEDS_QTY) {
         return NULL;
@@ -59,7 +59,7 @@ Led Led_Create(Pin pin, bool activeLow, unsigned blinkCount)
     led->pin          = pin;
     led->isActive     = false;
     led->activeLow    = activeLow;
-    led->blinkCount   = blinkCount * 2;
+    led->blinkCount   = 0;
     led->currentCount = 0;
 
     Led_SetActive(led, activeLow);
@@ -68,6 +68,11 @@ Led Led_Create(Pin pin, bool activeLow, unsigned blinkCount)
     SoftTimer_Start(&led->timer);
 
     return led;
+}
+
+Led Led_Destroy(Led self)
+{
+    freeLed--;
 }
 
 void Led_Task()

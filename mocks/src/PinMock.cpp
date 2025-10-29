@@ -6,13 +6,13 @@
 
 struct Pin_Impl {
     MockSupport *mock;
-    Pin_State    currentState;
+    bool    currentState;
     bool         isSpy;
 };
 
 extern "C" {
 
-void Pin_Write(Pin self, Pin_State state)
+void Pin_Write(Pin self, bool state)
 {
     if (!self->isSpy) {
         self->mock->actualCall("Pin_Write").withIntParameter("state", state);
@@ -20,20 +20,20 @@ void Pin_Write(Pin self, Pin_State state)
     self->currentState = state;
 }
 
-Pin_State Pin_Read(const Pin self)
+bool Pin_Read(const Pin self)
 {
     if (self->isSpy) {
         return self->currentState;
     }
     else {
         self->mock->actualCall("Pin_Read");
-        return (Pin_State)self->mock->returnValue().getIntValue();
+        return (bool)self->mock->returnValue().getIntValue();
     }
 }
 
 void Pin_Toggle(Pin self)
 {
-    Pin_Write(self, self->currentState == Pin_State_Hight ? Pin_State_Low : Pin_State_Hight);
+    Pin_Write(self, self->currentState == true ? false : true);
 }
 }
 
@@ -50,12 +50,12 @@ void PinMock_destroy(Pin self)
     free(self);
 }
 
-void PinMock_ExceptRead(Pin self, Pin_State state, int amount)
+void PinMock_ExceptRead(Pin self, bool state, int amount)
 {
     self->mock->expectNCalls(amount, "Pin_Read").andReturnValue((int)state);
 }
 
-void PinMock_ExceptWrite(Pin self, Pin_State state, int amount)
+void PinMock_ExceptWrite(Pin self, bool state, int amount)
 {
     self->mock->expectNCalls(amount, "Pin_Write").withIntParameter("state", state);
 }
