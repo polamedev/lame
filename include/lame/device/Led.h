@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <lame/drivers/Pin.h>
 
 #include <stdbool.h>
@@ -27,6 +31,10 @@ void Led_Task();
  */
 void Led_SetBlinkCount(Led led, unsigned blinkCount);
 
-// TODO реализовать прямое управление диодом
-void Led_Write(Led led, bool activeLow);
-bool Led_Read(const Led led);
+bool Led_IsActive(const Led led);
+void Led_SetActive(Led led, bool state);
+void Led_Toggle(Led led);
+
+#ifdef __cplusplus
+}
+#endif

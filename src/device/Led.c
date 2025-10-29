@@ -10,6 +10,7 @@
 typedef struct Led_Impl {
     Pin       pin;
     bool      activeLow;
+    bool      isActive;
     unsigned  blinkCount;
     unsigned  currentCount;
     SoftTimer timer;
@@ -30,10 +31,10 @@ static void Led_UnitTask(Led led)
     }
 
     if (led->currentCount % 2 == 0) {
-        Led_Write(led, true);
+        Led_SetActive(led, true);
     }
     else {
-        Led_Write(led, false);
+        Led_SetActive(led, false);
     }
 
     led->currentCount++;
@@ -56,11 +57,12 @@ Led Led_Create(Pin pin, bool activeLow, unsigned blinkCount)
     freeLed++;
 
     led->pin          = pin;
+    led->isActive     = false;
     led->activeLow    = activeLow;
     led->blinkCount   = blinkCount * 2;
     led->currentCount = 0;
 
-    Led_Write(led, activeLow);
+    Led_SetActive(led, activeLow);
 
     SoftTimer_Init(&led->timer, SoftTimer_ModePeriodic, blinkTime);
     SoftTimer_Start(&led->timer);
@@ -75,8 +77,14 @@ void Led_Task()
     }
 }
 
-void Led_Write(Led led, bool active)
+bool Led_IsActive(const Led led)
 {
+    return led->isActive;
+}
+
+void Led_SetActive(Led led, bool active)
+{
+    led->isActive = active;
     if (led->activeLow) {
         active = !active;
     }
@@ -84,13 +92,14 @@ void Led_Write(Led led, bool active)
     Pin_Write(led->pin, active);
 }
 
-bool Led_Read(const Led led)
+void Led_Toggle(Led led)
 {
-    bool active = Pin_Read(led->pin);
-    if (led->activeLow) {
-        active = !active;
+    if (Led_IsActive(led)) {
+        Led_SetActive(led, false);
     }
-    return active;
+    else {
+        Led_SetActive(led, true);
+    }
 }
 
 void Led_SetBlinkCount(Led led, unsigned blinkCount)
