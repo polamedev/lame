@@ -18,10 +18,9 @@ project(
 # -----------------------------------------------------------------------------------------------------------------------------------
 
 # Опции сборки
-option(LAME_BUILD_TESTS    "Build lame tests"   OFF)  # Нужно ли собирать тесты для библиотеки
-option(LAME_BUILD_MOCKS    "Build  lame mocks lib"       OFF)  # Нужно ли собирать тесты для библиотеки
-# option(LAME_BUILD_EXAMPLES "Build lame examples"      OFF)  # Нужно ли собирать примеры
-# option(LAME_BUILD_DOCS     "Build lame documentation" OFF)  # Нужно ли собирать документацию
+option(LAME_BUILD_TESTS       "Build lame tests"            OFF)  # Нужно ли собирать тесты для библиотеки
+option(LAME_BUILD_MOCKS       "Build  lame mocks lib"       OFF)  # Нужно ли собирать тесты для библиотеки
+option(LAME_MOCKS_BUILD_TESTS "Build tests lame::mocks lib" OFF)  # Нужно ли собирать тесты для библиотеки моков, также опция определяется в самой бибилотеки тестов
 
 # Установка типа сборки
 if(NOT CMAKE_BUILD_TYPE)
