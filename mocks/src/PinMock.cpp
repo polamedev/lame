@@ -7,20 +7,28 @@
 struct Pin_Impl {
     MockSupport *mock;
     Pin_State    currentState;
+    bool         isSpy;
 };
 
 extern "C" {
 
 void Pin_Write(Pin self, Pin_State state)
 {
-    self->mock->actualCall("Pin_Write").withIntParameter("state", state);
+    if (!self->isSpy) {
+        self->mock->actualCall("Pin_Write").withIntParameter("state", state);
+    }
     self->currentState = state;
 }
 
 Pin_State Pin_Read(const Pin self)
 {
-    self->mock->actualCall("Pin_Read");
-    return (Pin_State)self->mock->returnValue().getIntValue();
+    if (self->isSpy) {
+        return self->currentState;
+    }
+    else {
+        self->mock->actualCall("Pin_Read");
+        return (Pin_State)self->mock->returnValue().getIntValue();
+    }
 }
 
 void Pin_Toggle(Pin self)
@@ -29,10 +37,11 @@ void Pin_Toggle(Pin self)
 }
 }
 
-Pin PinMock_create(const char *mockName)
+Pin PinMock_create(const char *mockName, bool isSpy)
 {
-    Pin pin   = (Pin)calloc(1, sizeof(Pin_Impl));
-    pin->mock = &mock(mockName);
+    Pin pin    = (Pin)calloc(1, sizeof(Pin_Impl));
+    pin->isSpy = isSpy;
+    pin->mock  = &mock(mockName);
     return pin;
 }
 
