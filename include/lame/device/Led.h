@@ -28,5 +28,5 @@ void Led_Task();
 void Led_SetBlinkCount(Led led, unsigned blinkCount);
 
 // TODO реализовать прямое управление диодом
-void Led_SetActive(Led led, bool activeLow);
-bool Led_GetActive(const Led led);
+void Led_Write(Led led, bool activeLow);
+bool Led_Read(const Led led);
