@@ -6,7 +6,7 @@ project(
     VERSION 1.0.0
     DESCRIPTION
         "Embedded lame lib"
-    LANGUAGES C
+    LANGUAGES C CXX
 )
 
 # Определяем является ли текущий проектом верхнего уровня. Для fetch проектов, gitsubmodule или просто вложенных проектов это неверно
@@ -20,7 +20,7 @@ project(
 # Опции сборки
 option(LAME_BUILD_TESTS       "Build lame tests"            OFF)  # Нужно ли собирать тесты для библиотеки
 option(LAME_BUILD_MOCKS       "Build  lame mocks lib"       OFF)  # Нужно ли собирать тесты для библиотеки
-option(LAME_MOCKS_BUILD_TESTS "Build tests lame::mocks lib" OFF)  # Нужно ли собирать тесты для библиотеки моков, также опция определяется в самой бибилотеки тестов
+option(LAME_BUILD_MOCKS_TESTS "Build tests lame::mocks lib" OFF)  # Нужно ли собирать тесты для библиотеки моков, также опция определяется в самой бибилотеки тестов
 
 # Установка типа сборки
 if(NOT CMAKE_BUILD_TYPE)
@@ -84,6 +84,8 @@ target_include_directories(lame
 # Добавление других таргетов
 # -----------------------------------------------------------------------------------------------------------------------------------
 
+# set(LAME_BUILD_TESTS ON)
+
 if(LAME_BUILD_TESTS)
     # Для тестов необходимы моки объектов для этого установим переменную
     set(LAME_BUILD_MOCKS ON)
@@ -94,3 +96,10 @@ endif()
 if(LAME_BUILD_MOCKS)
     add_subdirectory(mocks)
 endif()
+
+# add_executable(lame-tests2
+#     tests/allTests.cpp
+#     tests/device/LedTest.cpp
+#     tests/utils/EventTest.cpp
+#     tests/utils/SoftTimerTest.cpp
+# )

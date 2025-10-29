@@ -1,0 +1,38 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "tests-on",
+            "description": "Собирать тесты для библиотеки",
+            "hidden": true,
+            "cacheVariables": {
+                "LAME_BUILD_TESTS": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            }
+        },
+        {
+            "name": "mocks-on",
+            "description": "Собирать моки объекты",
+            "hidden": true,
+            "cacheVariables": {
+                "LAME_BUILD_MOCKS": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            }
+        },
+        {
+            "name": "mocks-tests-on",
+            "description": "Собирать тесты для мок объекты",
+            "hidden": true,
+            "cacheVariables": {
+                "LAME_BUILD_MOCKS_TESTS": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            }
+        }
+    ]
+}
