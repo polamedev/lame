@@ -31,10 +31,10 @@ static void Led_UnitTask(Led led)
     }
 
     if (led->currentCount % 2 == 0) {
-        Led_SetActive(led, true);
+        Led_Write(led, true);
     }
     else {
-        Led_SetActive(led, false);
+        Led_Write(led, false);
     }
 
     led->currentCount++;
@@ -62,7 +62,7 @@ Led Led_Create(Pin pin, bool activeLow)
     led->blinkCount   = 0;
     led->currentCount = 0;
 
-    Led_SetActive(led, activeLow);
+    Led_Write(led, activeLow);
 
     SoftTimer_Init(&led->timer, SoftTimer_ModePeriodic, blinkTime);
     SoftTimer_Start(&led->timer);
@@ -82,12 +82,12 @@ void Led_Task()
     }
 }
 
-bool Led_IsActive(const Led led)
+bool Led_Read(const Led led)
 {
     return led->isActive;
 }
 
-void Led_SetActive(Led led, bool active)
+void Led_Write(Led led, bool active)
 {
     led->isActive = active;
     if (led->activeLow) {
@@ -99,11 +99,11 @@ void Led_SetActive(Led led, bool active)
 
 void Led_Toggle(Led led)
 {
-    if (Led_IsActive(led)) {
-        Led_SetActive(led, false);
+    if (Led_Read(led)) {
+        Led_Write(led, false);
     }
     else {
-        Led_SetActive(led, true);
+        Led_Write(led, true);
     }
 }
 

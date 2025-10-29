@@ -28,14 +28,27 @@ void Led_Task();
 
 /**
  * @brief  Установить количество миганий
- * @param  led: Дескриптор светодиода
  * @param  blinkCount: Количество миганий
  */
 void Led_SetBlinkCount(Led led, unsigned blinkCount);
 
-bool Led_IsActive(const Led led);
-void Led_SetActive(Led led, bool state);
-void Led_Toggle(Led led);
+/**
+ * @brief  Прочитать логическое состояние
+ * @return true - Диод включен 
+ * @return false - Диод выключен
+ */
+bool Led_Read(const Led);
+
+/**
+ * @brief  Записать логическое состояние
+ * @param  state: 
+ */
+void Led_Write(Led, bool state);
+
+/**
+ * @brief  Изменить логическое состояние светодиода
+ */
+void Led_Toggle(Led);
 
 // TODO Сделать поддержку следующих функций   activeLow: Активное положение - низкое ; blinkCount: Число миганий
 

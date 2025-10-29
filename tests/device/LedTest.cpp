@@ -38,7 +38,6 @@ void teardown()
 {
     Led_Destroy(led);
     PinMock_destroy(pin);
-
 }
 }; // TEST_GROUP(LedTests)
 
@@ -48,7 +47,6 @@ TEST(LedTests, createAndDestroy)
     Led_Destroy(led);
     led = Led_Create(pin, false);
     LONGS_EQUAL(led0, led);
-
 }
 
 TEST(LedTests, clearAfterCreate)
@@ -66,14 +64,14 @@ TEST(LedTests, clearAfterCreate)
 
 TEST(LedTests, turnOnLed)
 {
-    Led_SetActive(led, true);
+    Led_Write(led, true);
     CHECK_TRUE(Pin_Read(pin) == true);
 }
 
 TEST(LedTests, turnOffLed)
 {
-    Led_SetActive(led, true);
-    Led_SetActive(led, false);
+    Led_Write(led, true);
+    Led_Write(led, false);
     CHECK_TRUE(Pin_Read(pin) == false);
 }
 
@@ -84,6 +82,8 @@ TEST(LedTests, toggle)
     Led_Toggle(led);
     CHECK_TRUE(Pin_Read(pin) == false);
 }
+
+// ################################################################
 
 TEST_GROUP(LowActiveLedTests) {
 Led led;
@@ -104,14 +104,14 @@ void teardown()
 
 TEST(LowActiveLedTests, turnOnLed)
 {
-    Led_SetActive(led, true);
+    Led_Write(led, true);
     CHECK_TRUE(Pin_Read(pin) == false);
 }
 
 TEST(LowActiveLedTests, turnOffLed)
 {
-    Led_SetActive(led, true);
-    Led_SetActive(led, false);
+    Led_Write(led, true);
+    Led_Write(led, false);
     CHECK_TRUE(Pin_Read(pin) == true);
 }
 
