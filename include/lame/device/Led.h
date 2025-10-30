@@ -18,7 +18,7 @@ typedef struct Led_Impl *Led;
  */
 Led Led_Create(Pin pin, bool activeLow);
 
-Led Led_Destroy(Led);
+void Led_Destroy(Led);
 
 /**
  * @brief  Прочитать логическое состояние

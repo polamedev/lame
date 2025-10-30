@@ -49,8 +49,9 @@ Led Led_Create(Pin pin, bool activeLow)
     return led;
 }
 
-Led Led_Destroy(Led self)
+void Led_Destroy(Led self)
 {
+    (void) self;
     freeLedIndex--;
 }
 
