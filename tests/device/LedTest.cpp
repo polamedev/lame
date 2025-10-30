@@ -138,7 +138,9 @@ Pin pin;
 void setup()
 {
     pin = PinMock_create("led", true);
-    led = Led_Create(pin, true);
+    led = Led_Create(pin, false);
+    millis_set(0);
+    Led_StartBlink(led);
 }
 
 void teardown()
@@ -146,14 +148,122 @@ void teardown()
     Led_Destroy(led);
     PinMock_destroy(pin);
 }
+
+// Helpers
+
+void checkBlinkCycleLed(unsigned blinkCount)
+{
+    unsigned msec = 0;
+    char     str[10];
+    for (unsigned i = 0; i < blinkCount; i++) {
+        sprintf(str, "Cycle %i", i);
+
+        Led_Task();
+        CHECK_TRUE_TEXT(Pin_Read(pin) == true, str);
+        msec += 100;
+        millis_set(msec);
+
+        Led_Task();
+        CHECK_TRUE_TEXT(Pin_Read(pin) == false, str);
+        if (i == blinkCount - 1) {
+            msec += 500;
+        }
+        else {
+            msec += 100;
+        }
+        millis_set(msec);
+    }
+}
+
 }; // TEST_GROUP(BlinkLedTests)
 
-TEST(BlinkLedTests, blink)
+TEST(BlinkLedTests, blink1_cycle)
 {
-    Led_StartBlink(led);
+    checkBlinkCycleLed(1);
+}
+
+TEST(BlinkLedTests, blink2_cycle)
+{
+    Led_SetBlinkCount(led, 2);
+    checkBlinkCycleLed(2);
+}
+
+TEST(BlinkLedTests, blink1_fewCycle)
+{
+    Led_SetBlinkCount(led, 1);
+    checkBlinkCycleLed(1);
+    checkBlinkCycleLed(1);
+    checkBlinkCycleLed(1);
+}
+
+TEST(BlinkLedTests, blink2_fewCycle)
+{
+    Led_SetBlinkCount(led, 2);
+    checkBlinkCycleLed(2);
+    checkBlinkCycleLed(2);
+    checkBlinkCycleLed(2);
+}
+
+TEST(BlinkLedTests, blink3_fewCycle)
+{
+    Led_SetBlinkCount(led, 3);
+    checkBlinkCycleLed(3);
+    checkBlinkCycleLed(3);
+    checkBlinkCycleLed(3);
+}
+
+void startLedTaskInTime(unsigned msec)
+{
+    millis_set(msec);
     Led_Task();
+}
+
+TEST(BlinkLedTests, detailed_blink2)
+{
+    Led_SetBlinkCount(led, 2);
+
+    startLedTaskInTime(0);
+    checkPin(true);
+    startLedTaskInTime(100);
     checkPin(false);
-    millis_set(1000);
+
+    startLedTaskInTime(200);
+    checkPin(true);
+    startLedTaskInTime(300);
+    checkPin(false);
+
+    startLedTaskInTime(400);
+    checkPin(false);
+    startLedTaskInTime(500);
+    checkPin(false);
+
+    startLedTaskInTime(600);
+    checkPin(false);
+    startLedTaskInTime(700);
+    checkPin(false);
+
+
+    startLedTaskInTime(800);
+    checkPin(true);
+    startLedTaskInTime(900);
+    checkPin(false);
+
+    startLedTaskInTime(1000);
+    checkPin(true);
+    startLedTaskInTime(1100);
+    checkPin(false);
+
+    startLedTaskInTime(1200);
+    checkPin(false);
+    startLedTaskInTime(1300);
+    checkPin(false);
+
+    startLedTaskInTime(1400);
+    checkPin(false);
+    startLedTaskInTime(1500);
+    checkPin(false);
+
+    startLedTaskInTime(1600);
     checkPin(true);
 }
 

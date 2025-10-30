@@ -11,8 +11,8 @@ typedef struct Led_Impl {
     Pin       pin;
     bool      activeLow;
     bool      isActive;
-    unsigned  blinkCount;
-    unsigned  currentCount;
+    unsigned  blinkStages; // Общее число стадий миганий
+    unsigned  nextStage;   // Следующая стадия мигания
     SoftTimer timer;
 } Led_Impl;
 
@@ -22,7 +22,8 @@ typedef struct Led_Impl {
 static Led_Impl leds[LEDS_QTY];
 static size_t   freeLed = 0;
 
-const unsigned blinkTime = 100;
+const unsigned shortBlinkTime = 100;
+const unsigned longBlinkTime  = shortBlinkTime * 5;
 
 Led Led_Create(Pin pin, bool activeLow)
 {
@@ -32,15 +33,14 @@ Led Led_Create(Pin pin, bool activeLow)
     Led led = &leds[freeLed];
     freeLed++;
 
-    led->pin          = pin;
-    led->isActive     = false;
-    led->activeLow    = activeLow;
-    led->blinkCount   = 0;
-    led->currentCount = 0;
+    led->pin       = pin;
+    led->isActive  = false;
+    led->activeLow = activeLow;
+    led->nextStage = 0;
 
     Led_Write(led, activeLow);
-
-    SoftTimer_Init(&led->timer, SoftTimer_ModePeriodic, blinkTime);
+    Led_SetBlinkCount(led, 1);
+    SoftTimer_Init(&led->timer, SoftTimer_ModePeriodic, shortBlinkTime);
 
     return led;
 }
@@ -81,22 +81,14 @@ static void Led_UnitTask(Led led)
         return;
     }
 
-    if (led->currentCount % 2 == 0) {
-        Led_Write(led, true);
-    }
-    else {
-        Led_Write(led, false);
+    Led_Toggle(led);
+
+    led->nextStage++;
+    if (led->nextStage >= led->blinkStages) {
+        led->nextStage = 0;
     }
 
-    led->currentCount++;
-
-    if (led->currentCount >= led->blinkCount) {
-        led->currentCount = 0;
-        SoftTimer_SetPeriod(&led->timer, blinkTime * 5);
-    }
-    else {
-        SoftTimer_SetPeriod(&led->timer, blinkTime);
-    }
+    SoftTimer_SetPeriod(&led->timer, led->nextStage == 0 ? longBlinkTime : shortBlinkTime);
 }
 
 void Led_Task()
@@ -108,10 +100,13 @@ void Led_Task()
 
 void Led_StartBlink(Led led)
 {
-    
+    led->nextStage = 1;
+    Led_Write(led, true);
+    SoftTimer_SetPeriod(&led->timer, shortBlinkTime);
+    SoftTimer_Start(&led->timer);
 }
 
 void Led_SetBlinkCount(Led led, unsigned blinkCount)
 {
-    led->blinkCount = blinkCount;
+    led->blinkStages = blinkCount * 2;
 }
