@@ -25,6 +25,11 @@ III. Дополнительные механизмы
     2.+ Проверка конструктора и деструктора
 */
 
+#define checkPin(expected)                     \
+    do {                                       \
+        CHECK_TRUE(Pin_Read(pin) == expected); \
+    } while (0)
+
 TEST_GROUP(LedTests) {
 Led led;
 Pin pin;
@@ -57,7 +62,7 @@ TEST(LedTests, clearAfterCreate)
     Pin_Write(pin, true);
 
     Led led = Led_Create(pin, false);
-    CHECK_TRUE(Pin_Read(pin) == false);
+    checkPin(false);
 
     Led_Destroy(led);
     PinMock_destroy(pin);
@@ -66,22 +71,22 @@ TEST(LedTests, clearAfterCreate)
 TEST(LedTests, turnOnLed)
 {
     Led_Write(led, true);
-    CHECK_TRUE(Pin_Read(pin) == true);
+    checkPin(true);
 }
 
 TEST(LedTests, turnOffLed)
 {
     Led_Write(led, true);
     Led_Write(led, false);
-    CHECK_TRUE(Pin_Read(pin) == false);
+    checkPin(false);
 }
 
 TEST(LedTests, toggle)
 {
     Led_Toggle(led);
-    CHECK_TRUE(Pin_Read(pin) == true);
+    checkPin(true);
     Led_Toggle(led);
-    CHECK_TRUE(Pin_Read(pin) == false);
+    checkPin(false);
 }
 
 TEST(LedTests, read)
@@ -114,22 +119,17 @@ void teardown()
 TEST(LowActiveLedTests, turnOnLed)
 {
     Led_Write(led, true);
-    CHECK_TRUE(Pin_Read(pin) == false);
+    checkPin(false);
 }
 
 TEST(LowActiveLedTests, turnOffLed)
 {
     Led_Write(led, true);
     Led_Write(led, false);
-    CHECK_TRUE(Pin_Read(pin) == true);
+    checkPin(true);
 }
 
 // ####################################################################
-
-#define checkPin(expected)                     \
-    do {                                       \
-        CHECK_TRUE(Pin_Read(pin) == expected); \
-    } while (0)
 
 TEST_GROUP(BlinkLedTests) {
 Led led;
