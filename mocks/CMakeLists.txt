@@ -18,7 +18,7 @@ project(
 # -----------------------------------------------------------------------------------------------------------------------------------
 
 # Опции сборки
-option(LAME_MOCKS_BUILD_TESTS    "Build tests lame::mocks lib"         OFF)  # Нужно ли собирать тесты для библиотеки
+option(LAME_BUILD_MOCKS_TESTS    "Build tests lame::mocks lib"         OFF)  # Нужно ли собирать тесты для библиотеки
 
 # Установка типа сборки
 if(NOT CMAKE_BUILD_TYPE)
@@ -87,7 +87,7 @@ target_link_libraries(lame-mocks
 # Добавление других таргетов
 # -----------------------------------------------------------------------------------------------------------------------------------
 
-if(LAME_MOCKS_BUILD_TESTS)
+if(LAME_BUILD_MOCKS_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
