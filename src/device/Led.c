@@ -20,34 +20,38 @@ typedef struct Led_Impl {
 #define LEDS_QTY 5
 
 static Led_Impl leds[LEDS_QTY];
-static size_t   freeLed = 0;
+static size_t   freeLedIndex = 0;
 
 const unsigned shortBlinkTime = 100;
 const unsigned longBlinkTime  = shortBlinkTime * 5;
 
+static void Led_Init(Led self, Pin pin, bool activeLow)
+{
+    self->pin       = pin;
+    self->isActive  = false;
+    self->activeLow = activeLow;
+    self->nextStage = 0;
+
+    Led_Write(self, activeLow);
+    Led_SetBlinkCount(self, 1);
+    SoftTimer_Init(&self->timer, SoftTimer_ModePeriodic, shortBlinkTime);
+}
+
 Led Led_Create(Pin pin, bool activeLow)
 {
-    if (freeLed == LEDS_QTY) {
+    if (freeLedIndex == LEDS_QTY) {
         return NULL;
     }
-    Led led = &leds[freeLed];
-    freeLed++;
+    Led led = &leds[freeLedIndex];
+    freeLedIndex++;
 
-    led->pin       = pin;
-    led->isActive  = false;
-    led->activeLow = activeLow;
-    led->nextStage = 0;
-
-    Led_Write(led, activeLow);
-    Led_SetBlinkCount(led, 1);
-    SoftTimer_Init(&led->timer, SoftTimer_ModePeriodic, shortBlinkTime);
-
+    Led_Init(led, pin, activeLow);
     return led;
 }
 
 Led Led_Destroy(Led self)
 {
-    freeLed--;
+    freeLedIndex--;
 }
 
 bool Led_Read(const Led led)
@@ -93,7 +97,7 @@ static void Led_UnitTask(Led led)
 
 void Led_Task()
 {
-    for (size_t i = 0; i < freeLed; ++i) {
+    for (size_t i = 0; i < freeLedIndex; ++i) {
         Led_UnitTask(&leds[i]);
     }
 }

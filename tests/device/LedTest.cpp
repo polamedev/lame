@@ -154,9 +154,9 @@ void teardown()
 void checkBlinkCycleLed(unsigned blinkCount)
 {
     unsigned msec = 0;
-    char     str[10];
+    char     str[17];
     for (unsigned i = 0; i < blinkCount; i++) {
-        sprintf(str, "Cycle %i", i);
+        sprintf(str, "Cycle %u", i);
 
         Led_Task();
         CHECK_TRUE_TEXT(Pin_Read(pin) == true, str);
@@ -173,6 +173,33 @@ void checkBlinkCycleLed(unsigned blinkCount)
         }
         millis_set(msec);
     }
+}
+
+void startLedTaskInTime(unsigned msec)
+{
+    Led_Task();
+    if (msec) {
+        millis_set(msec - 1);
+    }
+    Led_Task();
+    millis_set(msec);
+    Led_Task();
+    millis_set(msec + 1);
+    Led_Task();
+}
+
+void incrementTimeLed(bool exceptBlink, unsigned start_ms)
+{
+    startLedTaskInTime(start_ms);
+    if (exceptBlink) {
+        checkPin(true);
+    }
+    else {
+        checkPin(false);
+    }
+
+    startLedTaskInTime(start_ms + 100);
+    checkPin(false);
 }
 
 }; // TEST_GROUP(BlinkLedTests)
@@ -212,59 +239,24 @@ TEST(BlinkLedTests, blink3_fewCycle)
     checkBlinkCycleLed(3);
 }
 
-void startLedTaskInTime(unsigned msec)
-{
-    millis_set(msec);
-    Led_Task();
-}
-
 TEST(BlinkLedTests, detailed_blink2)
 {
     Led_SetBlinkCount(led, 2);
 
-    startLedTaskInTime(0);
-    checkPin(true);
-    startLedTaskInTime(100);
-    checkPin(false);
+    unsigned ms = 0;
+    // Первый цикл
+    incrementTimeLed(true, ms);
+    incrementTimeLed(true, ms += 200);
+    incrementTimeLed(false, ms += 200);
+    incrementTimeLed(false, ms += 200);
 
-    startLedTaskInTime(200);
-    checkPin(true);
-    startLedTaskInTime(300);
-    checkPin(false);
+    // Второй цикл
+    incrementTimeLed(true, ms += 200);
+    incrementTimeLed(true, ms += 200);
+    incrementTimeLed(false, ms += 200);
+    incrementTimeLed(false, ms += 200);
 
-    startLedTaskInTime(400);
-    checkPin(false);
-    startLedTaskInTime(500);
-    checkPin(false);
-
-    startLedTaskInTime(600);
-    checkPin(false);
-    startLedTaskInTime(700);
-    checkPin(false);
-
-
-    startLedTaskInTime(800);
-    checkPin(true);
-    startLedTaskInTime(900);
-    checkPin(false);
-
-    startLedTaskInTime(1000);
-    checkPin(true);
-    startLedTaskInTime(1100);
-    checkPin(false);
-
-    startLedTaskInTime(1200);
-    checkPin(false);
-    startLedTaskInTime(1300);
-    checkPin(false);
-
-    startLedTaskInTime(1400);
-    checkPin(false);
-    startLedTaskInTime(1500);
-    checkPin(false);
-
-    startLedTaskInTime(1600);
-    checkPin(true);
+    incrementTimeLed(true, ms += 200);
 }
 
 // TODO Дописать тесты
