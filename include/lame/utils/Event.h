@@ -6,7 +6,11 @@ extern "C" {
 
 #include <stdbool.h>
 
-typedef bool Event;
+typedef struct {
+    volatile bool val;
+} Event;
+
+// Event Event_Create();
 
 /**
  * @brief  Инициализация события
