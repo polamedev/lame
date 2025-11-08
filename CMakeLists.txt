@@ -38,11 +38,55 @@ set(CMAKE_DEBUG_POSTFIX -dev)
 # Настройка таргета библиотеки
 # -----------------------------------------------------------------------------------------------------------------------------------
 
+# Интерфесная библиотека с общими инклудами
+add_library(lame-interface INTERFACE)
+
+# Библиотека lamesw - часто программная библиотека, которая не зависит от аппаратной реализации
+add_library(lame-base STATIC)
+
 # Добавление библиотеки
+# Библиотека lame реализуется зависимые файлы от определенного порта
 add_library(lame STATIC)
 
-# Добавляем alias для библиотеки, полезно для избежания конфликта имен
-add_library(lame::lame ALIAS lame)
+
+######   lame-interface    ######
+target_include_directories(lame-interface INTERFACE
+    include/lame/device
+    include/lame/drivers
+    include/lame/utils
+)
+
+######   lame-base    ######
+# VERSION - Устанавливаем версию библиотеки из версии проекта
+# SOVERSION - Версия совместимости - определяет версию API стоит изменять, когда меняется API, поведение или используемый интерфейс
+set_target_properties(
+    lame-base
+    PROPERTIES VERSION ${PROJECT_VERSION}
+               SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
+target_sources(lame-base
+    PRIVATE 
+    src/base/Event.c
+)
+
+target_include_directories(lame-base
+    # Пути включения доступные только библиотеке
+    PRIVATE 
+    src/base 
+    # Пути включения доступные самой библиотеке и пользователям
+    PUBLIC
+    # Используется выражения генератора
+    # При сборке BUILD_INTERFACE заменится на include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> 
+    # При установке INSTALL_INTERFACE заменится на католог включения при установки
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_link_libraries(lame-base PRIVATE lame-interface)
+
+
+######   lame    ######
 
 # VERSION - Устанавливаем версию библиотеки из версии проекта
 # SOVERSION - Версия совместимости - определяет версию API стоит изменять, когда меняется API, поведение или используемый интерфейс
@@ -54,29 +98,21 @@ set_target_properties(
 
 target_sources(lame
     PRIVATE 
-    src/utils/Event.c
-    src/utils/SoftTimer.c
-
-    src/device/Led.c
+    src/dependent/SoftTimer.c
+    src/dependent/Led.c
 )
 
 
 target_include_directories(lame
     # Пути включения доступные только библиотеке
     PRIVATE 
-    src 
+    src/dependent 
     include/lame/device
     include/lame/drivers
     include/lame/utils
-
-    # Пути включения доступные самой библиотеке и пользователям
-    PUBLIC
-    # Используется выражения генератора
-    # При сборке BUILD_INTERFACE заменится на include
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> 
-    # При установке INSTALL_INTERFACE заменится на католог включения при установки
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+target_link_libraries(lame PUBLIC lame-base lame-port PRIVATE lame-interface)
 
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Добавление других таргетов
