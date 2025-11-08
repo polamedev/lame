@@ -30,21 +30,23 @@ III. Дополнительные механизмы
         CHECK_TRUE(Pin_Read(pin) == expected); \
     } while (0)
 
-TEST_GROUP(LedTests) {
-Led led;
-Pin pin;
-
-void setup()
+TEST_GROUP(LedTests)
 {
-    pin = PinMock_create("led", true);
-    led = Led_Create(pin, false);
-}
+    Led      led;
+    Pin      pin;
+    unsigned blinkPeriod = 150;
 
-void teardown()
-{
-    Led_Destroy(led);
-    PinMock_destroy(pin);
-}
+    void setup()
+    {
+        pin = PinMock_create("led", true);
+        led = Led_Create(pin, false);
+    }
+
+    void teardown()
+    {
+        Led_Destroy(led);
+        PinMock_destroy(pin);
+    }
 }; // TEST_GROUP(LedTests)
 
 TEST(LedTests, createAndDestroy)
@@ -98,22 +100,23 @@ TEST(LedTests, read)
 
 // ################################################################
 
-TEST_GROUP(LowActiveLedTests) {
-Led led;
-Pin pin;
-
-void setup()
+TEST_GROUP(LowActiveLedTests)
 {
-    pin = PinMock_create("led", true);
-    led = Led_Create(pin, true);
-    millis_set(0);
-}
+    Led led;
+    Pin pin;
 
-void teardown()
-{
-    Led_Destroy(led);
-    PinMock_destroy(pin);
-}
+    void setup()
+    {
+        pin = PinMock_create("led", true);
+        led = Led_Create(pin, true);
+        millis_set(0);
+    }
+
+    void teardown()
+    {
+        Led_Destroy(led);
+        PinMock_destroy(pin);
+    }
 }; // TEST_GROUP(LowActiveLedTests)
 
 TEST(LowActiveLedTests, turnOnLed)
@@ -131,76 +134,78 @@ TEST(LowActiveLedTests, turnOffLed)
 
 // ####################################################################
 
-TEST_GROUP(BlinkLedTests) {
-Led led;
-Pin pin;
-
-void setup()
+TEST_GROUP(BlinkLedTests)
 {
-    pin = PinMock_create("led", true);
-    led = Led_Create(pin, false);
-    millis_set(0);
-    Led_StartBlink(led);
-}
+    Led      led;
+    Pin      pin;
+    unsigned blinkPeriod = 150;
 
-void teardown()
-{
-    Led_Destroy(led);
-    PinMock_destroy(pin);
-}
+    void setup()
+    {
+        pin = PinMock_create("led", true);
+        led = Led_Create(pin, false);
+        millis_set(0);
+        Led_StartBlink(led);
+    }
 
-// Helpers
+    void teardown()
+    {
+        Led_Destroy(led);
+        PinMock_destroy(pin);
+    }
 
-void checkBlinkCycleLed(unsigned blinkCount)
-{
-    unsigned msec = 0;
-    char     str[17];
-    for (unsigned i = 0; i < blinkCount; i++) {
-        sprintf(str, "Cycle %u", i);
+    // Helpers
 
+    void checkBlinkCycleLed(unsigned blinkCount)
+    {
+        unsigned msec = 0;
+        char     str[17];
+        for (unsigned i = 0; i < blinkCount; i++) {
+            sprintf(str, "Cycle %u", i);
+
+            Led_Task();
+            CHECK_TRUE_TEXT(Pin_Read(pin) == true, str);
+            msec += blinkPeriod;
+            millis_set(msec);
+
+            Led_Task();
+            CHECK_TRUE_TEXT(Pin_Read(pin) == false, str);
+            if (i == blinkCount - 1) {
+                msec += 5 * blinkPeriod;
+            }
+            else {
+                msec += blinkPeriod;
+            }
+            millis_set(msec);
+        }
+    }
+
+    void startLedTaskInTime(unsigned msec)
+    {
         Led_Task();
-        CHECK_TRUE_TEXT(Pin_Read(pin) == true, str);
-        msec += 100;
+        if (msec) {
+            millis_set(msec - 1);
+        }
+        Led_Task();
         millis_set(msec);
-
         Led_Task();
-        CHECK_TRUE_TEXT(Pin_Read(pin) == false, str);
-        if (i == blinkCount - 1) {
-            msec += 500;
+        millis_set(msec + 1);
+        Led_Task();
+    }
+
+    void incrementTimeLed(bool exceptBlink, unsigned start_ms)
+    {
+        startLedTaskInTime(start_ms);
+        if (exceptBlink) {
+            checkPin(true);
         }
         else {
-            msec += 100;
+            checkPin(false);
         }
-        millis_set(msec);
-    }
-}
 
-void startLedTaskInTime(unsigned msec)
-{
-    Led_Task();
-    if (msec) {
-        millis_set(msec - 1);
-    }
-    Led_Task();
-    millis_set(msec);
-    Led_Task();
-    millis_set(msec + 1);
-    Led_Task();
-}
-
-void incrementTimeLed(bool exceptBlink, unsigned start_ms)
-{
-    startLedTaskInTime(start_ms);
-    if (exceptBlink) {
-        checkPin(true);
-    }
-    else {
+        startLedTaskInTime(start_ms + blinkPeriod);
         checkPin(false);
     }
-
-    startLedTaskInTime(start_ms + 100);
-    checkPin(false);
-}
 
 }; // TEST_GROUP(BlinkLedTests)
 
@@ -246,17 +251,17 @@ TEST(BlinkLedTests, detailed_blink2)
     unsigned ms = 0;
     // Первый цикл
     incrementTimeLed(true, ms);
-    incrementTimeLed(true, ms += 200);
-    incrementTimeLed(false, ms += 200);
-    incrementTimeLed(false, ms += 200);
+    incrementTimeLed(true, ms += 2 * blinkPeriod);
+    incrementTimeLed(false, ms += 2 * blinkPeriod);
+    incrementTimeLed(false, ms += 2 * blinkPeriod);
 
     // Второй цикл
-    incrementTimeLed(true, ms += 200);
-    incrementTimeLed(true, ms += 200);
-    incrementTimeLed(false, ms += 200);
-    incrementTimeLed(false, ms += 200);
+    incrementTimeLed(true, ms += 2 * blinkPeriod);
+    incrementTimeLed(true, ms += 2 * blinkPeriod);
+    incrementTimeLed(false, ms += 2 * blinkPeriod);
+    incrementTimeLed(false, ms += 2 * blinkPeriod);
 
-    incrementTimeLed(true, ms += 200);
+    incrementTimeLed(true, ms += 2 * blinkPeriod);
 }
 
 // TODO Дописать тесты

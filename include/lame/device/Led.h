@@ -52,7 +52,14 @@ void Led_StartBlink(Led);
  * @brief  Установить количество миганий
  * @param  blinkCount: Количество миганий
  */
-void Led_SetBlinkCount(Led led, unsigned blinkCount);
+void Led_SetBlinkCount(Led, unsigned blinkCount);
+
+/**
+ * @brief  Вернуть количество миганий
+ * @return unsigned - Установленное количество миганий
+ */
+unsigned Led_GetBlinkCount(const Led);
+
 
 #ifdef __cplusplus
 }
