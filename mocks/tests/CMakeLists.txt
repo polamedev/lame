@@ -26,5 +26,5 @@ add_executable(lame-mocks-tests
     PinMockTest.cpp
     PinMockSpyTest.cpp
 )
-target_link_libraries(lame-mocks-tests lame::mocks CppUTest::CppUTest CppUTest::CppUTestExt)
+target_link_libraries(lame-mocks-tests lame-mocks CppUTest::CppUTest CppUTest::CppUTestExt)
 add_test(lame-mocks-tests lame-mocks-tests)

@@ -43,7 +43,7 @@ find_package(CppUTest REQUIRED)
 add_library(lame-mocks STATIC)
 
 # Добавляем alias для библиотеки, полезно для избежания конфликта имен
-add_library(lame::mocks ALIAS lame-mocks)
+# add_library(lame::mocks ALIAS lame-mocks)
 
 # VERSION - Устанавливаем версию библиотеки из версии проекта
 # SOVERSION - Версия совместимости - определяет версию API стоит изменять, когда меняется API, поведение или используемый интерфейс
@@ -77,7 +77,7 @@ target_include_directories(lame-mocks
 
 target_link_libraries(lame-mocks 
     PUBLIC 
-    lame::lame 
+    lame 
     PRIVATE
     CppUTest::CppUTest
     CppUTest::CppUTestExt

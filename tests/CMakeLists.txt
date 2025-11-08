@@ -9,6 +9,10 @@ project(
     LANGUAGES C CXX
 )
 
+# Объявляем пустую библиотеку порта для успешной сборки тестов
+add_library(lame-empty-port INTERFACE)
+add_library(lame-port ALIAS lame-empty-port)
+
 # Используется фреймворк CppUTest для тестирования
 find_package(CppUTest REQUIRED)
 
@@ -23,5 +27,6 @@ add_executable(lame-tests
     utils/EventTest.cpp
     utils/SoftTimerTest.cpp
 )
-target_link_libraries(lame-tests lame::lame lame::mocks CppUTest::CppUTest CppUTest::CppUTestExt)
+
+target_link_libraries(lame-tests lame lame-mocks CppUTest::CppUTest CppUTest::CppUTestExt)
 add_test(lame-tests lame-tests)
