@@ -20,7 +20,6 @@ project(
 # Опции сборки
 option(LAME_BUILD_TESTS       "Build lame tests"            OFF)  # Нужно ли собирать тесты для библиотеки
 option(LAME_BUILD_MOCKS       "Build  lame mocks lib"       OFF)  # Нужно ли собирать мок-объекты библиотеки
-option(LAME_BUILD_MOCKS_TESTS "Build tests lame::mocks lib" OFF)  # Нужно ли собирать тесты для библиотеки мок-объектов, также опция определяется в самой библиотеки тестов
 
 # Установка типа сборки
 if(NOT CMAKE_BUILD_TYPE)
@@ -123,6 +122,8 @@ target_link_libraries(lame PUBLIC lame-base lame-port PRIVATE lame-interface)
 if(LAME_BUILD_TESTS)
     # Для тестов необходимы моки объектов для этого установим переменную
     set(LAME_BUILD_MOCKS ON)
+    # Также собираем тесты для моков
+    set(LAME_BUILD_MOCKS_TESTS ON)
     enable_testing()
     add_subdirectory(tests)
 endif()
