@@ -25,15 +25,59 @@ III. Дополнительные механизмы
     2.+ Проверка конструктора и деструктора
 */
 
-#define checkPin(expected)                     \
+unsigned blinkPeriod = 150;
+
+#define CHECK_PIN(expected)                    \
     do {                                       \
         CHECK_TRUE(Pin_Read(pin) == expected); \
     } while (0)
 
+/**
+ * @brief  Проверка текущего состояния пина и увеличение текущего времени
+ */
+#define PROCESS_STAGE_BLINK(expected_pin_state) \
+    do {                                        \
+        Led_Task();                             \
+        CHECK_PIN(expected_pin_state);          \
+        millis_set(millis() + blinkPeriod);     \
+    } while (0)
+
+/**
+ * @brief  Проверка одного блинка
+ */
+#define CHECK_BLINK()               \
+    do {                            \
+        PROCESS_STAGE_BLINK(true);  \
+        PROCESS_STAGE_BLINK(false); \
+    } while (0)
+
+/**
+ * @brief  Проверка последнего блинка с увеличенной задержкой
+ */
+#define CHECK_DELAYED_BLINK()           \
+    do {                                \
+        PROCESS_STAGE_BLINK(true);      \
+        for (int i = 0; i < 5; i++) {   \
+            PROCESS_STAGE_BLINK(false); \
+        }                               \
+    } while (0)
+
+/**
+ * @brief  Проверка полного цикла блинка с короткими паузками и длинными
+ */
+#define CHECK_BLINK_FULL_CYCLE(blinkCount)             \
+    do {                                               \
+        if (blinkCount > 1) {                          \
+            for (int i = 0; i < blinkCount - 1; i++) { \
+                CHECK_BLINK();                         \
+            }                                          \
+        }                                              \
+        CHECK_DELAYED_BLINK();                         \
+    } while (0)
+
 TEST_GROUP(LedTests) {
-Led      led;
-Pin      pin;
-unsigned blinkPeriod = 150;
+Led led;
+Pin pin;
 
 void setup()
 {
@@ -63,7 +107,7 @@ TEST(LedTests, clearAfterCreate)
     Pin_Write(pin, true);
 
     Led led = Led_Create(pin, false);
-    checkPin(false);
+    CHECK_PIN(false);
 
     Led_Destroy(led);
     PinMock_destroy(pin);
@@ -72,22 +116,22 @@ TEST(LedTests, clearAfterCreate)
 TEST(LedTests, turnOnLed)
 {
     Led_Write(led, true);
-    checkPin(true);
+    CHECK_PIN(true);
 }
 
 TEST(LedTests, turnOffLed)
 {
     Led_Write(led, true);
     Led_Write(led, false);
-    checkPin(false);
+    CHECK_PIN(false);
 }
 
 TEST(LedTests, toggle)
 {
     Led_Toggle(led);
-    checkPin(true);
+    CHECK_PIN(true);
     Led_Toggle(led);
-    checkPin(false);
+    CHECK_PIN(false);
 }
 
 TEST(LedTests, read)
@@ -120,23 +164,22 @@ void teardown()
 TEST(LowActiveLedTests, turnOnLed)
 {
     Led_Write(led, true);
-    checkPin(false);
+    CHECK_PIN(false);
 }
 
 TEST(LowActiveLedTests, turnOffLed)
 {
     Led_Write(led, true);
     Led_Write(led, false);
-    checkPin(true);
+    CHECK_PIN(true);
 }
 
 // ####################################################################
 
 TEST_GROUP(BlinkLedTests) {
 
-Led      led;
-Pin      pin;
-unsigned blinkPeriod = 150;
+Led led;
+Pin pin;
 
 void setup()
 {
@@ -152,141 +195,57 @@ void teardown()
     PinMock_destroy(pin);
 }
 
-// Helpers
-
-void checkBlinkCycleLed(unsigned blinkCount)
-{
-    unsigned msec = 0;
-    char     str[17];
-    for (unsigned i = 0; i < blinkCount; i++) {
-        sprintf(str, "Cycle %u", i);
-
-        Led_Task();
-        CHECK_TRUE_TEXT(Pin_Read(pin) == true, str);
-        msec += blinkPeriod;
-        millis_set(msec);
-
-        Led_Task();
-        CHECK_TRUE_TEXT(Pin_Read(pin) == false, str);
-        if (i == blinkCount - 1) {
-            msec += 5 * blinkPeriod;
-        }
-        else {
-            msec += blinkPeriod;
-        }
-        millis_set(msec);
-    }
-}
-
-/**
- * @brief  Запустить задачу Led_Task() до заданного времени в заданное время и после
- * @param  msec:
- */
-void processLedTaskInTime(unsigned msec)
-{
-    Led_Task();
-    if (msec > 0) {
-        millis_set(msec - 1);
-        Led_Task();
-    }
-    millis_set(msec);
-    Led_Task();
-    millis_set(msec + 1);
-    Led_Task();
-}
-
-/**
- * @brief  Проверяет одну фазу мигания начиная с времени start_ms
- *         Проверяет первую фазу, потом устаналвиает время через период и проверяет вторую фазу
- * @param  exceptBlink:
- * @param  start_ms:
- */
-void incrementTimeLed(bool exceptBlink, unsigned start_ms)
-{
-    processLedTaskInTime(start_ms);
-    if (exceptBlink) {
-        checkPin(true);
-    }
-    else {
-        checkPin(false);
-    }
-
-    processLedTaskInTime(start_ms + blinkPeriod);
-    checkPin(false);
-}
-
 }; // TEST_GROUP(BlinkLedTests)
 
 TEST(BlinkLedTests, blink1_cycle)
 {
-    checkBlinkCycleLed(1);
+    CHECK_BLINK_FULL_CYCLE(1);
 }
 
 TEST(BlinkLedTests, blink2_cycle)
 {
     Led_SetBlinkCount(led, 2);
-    checkBlinkCycleLed(2);
+    CHECK_BLINK_FULL_CYCLE(2);
 }
 
 TEST(BlinkLedTests, blink1_fewCycle)
 {
     Led_SetBlinkCount(led, 1);
-    checkBlinkCycleLed(1);
-    checkBlinkCycleLed(1);
-    checkBlinkCycleLed(1);
+    CHECK_BLINK_FULL_CYCLE(1);
+    CHECK_BLINK_FULL_CYCLE(1);
+    CHECK_BLINK_FULL_CYCLE(1);
 }
 
 TEST(BlinkLedTests, blink2_fewCycle)
 {
     Led_SetBlinkCount(led, 2);
-    checkBlinkCycleLed(2);
-    checkBlinkCycleLed(2);
-    checkBlinkCycleLed(2);
+    CHECK_BLINK_FULL_CYCLE(2);
+    CHECK_BLINK_FULL_CYCLE(2);
+    CHECK_BLINK_FULL_CYCLE(2);
 }
 
 TEST(BlinkLedTests, blink3_fewCycle)
 {
     Led_SetBlinkCount(led, 3);
-    checkBlinkCycleLed(3);
-    checkBlinkCycleLed(3);
-    checkBlinkCycleLed(3);
+    CHECK_BLINK_FULL_CYCLE(3);
+    CHECK_BLINK_FULL_CYCLE(3);
+    CHECK_BLINK_FULL_CYCLE(3);
 }
 
 TEST(BlinkLedTests, detailed_blink2)
 {
     Led_SetBlinkCount(led, 2);
 
-    unsigned ms = 0;
     // Первый цикл
-    incrementTimeLed(true, ms);
-    incrementTimeLed(true, ms += 2 * blinkPeriod);
-    incrementTimeLed(false, ms += 2 * blinkPeriod);
-    incrementTimeLed(false, ms += 2 * blinkPeriod);
+    CHECK_BLINK();
+    CHECK_DELAYED_BLINK();
 
     // Второй цикл
-    incrementTimeLed(true, ms += 2 * blinkPeriod);
-    incrementTimeLed(true, ms += 2 * blinkPeriod);
-    incrementTimeLed(false, ms += 2 * blinkPeriod);
-    incrementTimeLed(false, ms += 2 * blinkPeriod);
-
-    incrementTimeLed(true, ms += 2 * blinkPeriod);
+    CHECK_BLINK();
+    CHECK_DELAYED_BLINK();
+    // Третий цикл
+    CHECK_BLINK();
 }
-
-#define PROCESS_STAGE_BLINK(expected_pin_state) \
-    do {                                        \
-        Led_Task();                             \
-        checkPin(expected_pin_state);           \
-        millis_set(millis() + blinkPeriod);     \
-    } while (0)
-
-#define PROCESS_DELAY_STAGE_BLINK() \
-    do {                            \
-        PROCESS_STAGE_BLINK(false); \
-        PROCESS_STAGE_BLINK(false); \
-        PROCESS_STAGE_BLINK(false); \
-        PROCESS_STAGE_BLINK(false); \
-        PROCESS_STAGE_BLINK(false); \
-    } while (0)
 
 TEST(BlinkLedTests, stop_blink)
 {
@@ -294,28 +253,25 @@ TEST(BlinkLedTests, stop_blink)
     unsigned msec = 0;
     millis_set(msec);
     Led_Task();
-    checkPin(true);
+    CHECK_PIN(true);
     Led_StopBlink(led);
-    checkPin(false);
+    CHECK_PIN(false);
 }
 
 TEST(BlinkLedTests, reset_after_change_blink_count)
 {
     Led_SetBlinkCount(led, 3);
-    checkPin(true);
+    CHECK_PIN(true);
 
     unsigned msec = 0;
     millis_set(msec);
 
-    PROCESS_STAGE_BLINK(true);
-    PROCESS_STAGE_BLINK(false);
+    CHECK_BLINK();
     PROCESS_STAGE_BLINK(true);
 
     Led_SetBlinkCount(led, 1);
-    PROCESS_STAGE_BLINK(true);
-    PROCESS_DELAY_STAGE_BLINK();
-    PROCESS_STAGE_BLINK(true);
-    PROCESS_DELAY_STAGE_BLINK();
+    CHECK_DELAYED_BLINK();
+    CHECK_DELAYED_BLINK();
 }
 
 // TODO Дописать тесты
