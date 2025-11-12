@@ -49,7 +49,7 @@ Led Led_Create(Pin pin, bool activeLow)
 
 void Led_Destroy(Led self)
 {
-    (void) self;
+    (void)self;
     freeLedIndex--;
 }
 
@@ -109,9 +109,25 @@ void Led_StartBlink(Led self)
     SoftTimer_Start(&self->timer);
 }
 
+void Led_StopBlink(Led self)
+{
+    Led_Write(self, false);
+    SoftTimer_Stop(&self->timer);
+}
+
+bool Led_IsBlinkRunning(Led self)
+{
+    return SoftTimer_GetState(&self->timer) == SoftTimer_StateRun;
+}
+
 void Led_SetBlinkCount(Led self, unsigned blinkCount)
 {
     self->blinkStages = blinkCount * 2;
+
+    if (Led_IsBlinkRunning(self)) {
+        Led_StopBlink(self);
+        Led_StartBlink(self);
+    }
 }
 
 unsigned Led_GetBlinkCount(const Led self)

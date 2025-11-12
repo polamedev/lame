@@ -30,23 +30,22 @@ III. Дополнительные механизмы
         CHECK_TRUE(Pin_Read(pin) == expected); \
     } while (0)
 
-TEST_GROUP(LedTests)
+TEST_GROUP(LedTests) {
+Led      led;
+Pin      pin;
+unsigned blinkPeriod = 150;
+
+void setup()
 {
-    Led      led;
-    Pin      pin;
-    unsigned blinkPeriod = 150;
+    pin = PinMock_create("led", true);
+    led = Led_Create(pin, false);
+}
 
-    void setup()
-    {
-        pin = PinMock_create("led", true);
-        led = Led_Create(pin, false);
-    }
-
-    void teardown()
-    {
-        Led_Destroy(led);
-        PinMock_destroy(pin);
-    }
+void teardown()
+{
+    Led_Destroy(led);
+    PinMock_destroy(pin);
+}
 }; // TEST_GROUP(LedTests)
 
 TEST(LedTests, createAndDestroy)
@@ -100,23 +99,22 @@ TEST(LedTests, read)
 
 // ################################################################
 
-TEST_GROUP(LowActiveLedTests)
+TEST_GROUP(LowActiveLedTests) {
+Led led;
+Pin pin;
+
+void setup()
 {
-    Led led;
-    Pin pin;
+    pin = PinMock_create("led", true);
+    led = Led_Create(pin, true);
+    millis_set(0);
+}
 
-    void setup()
-    {
-        pin = PinMock_create("led", true);
-        led = Led_Create(pin, true);
-        millis_set(0);
-    }
-
-    void teardown()
-    {
-        Led_Destroy(led);
-        PinMock_destroy(pin);
-    }
+void teardown()
+{
+    Led_Destroy(led);
+    PinMock_destroy(pin);
+}
 }; // TEST_GROUP(LowActiveLedTests)
 
 TEST(LowActiveLedTests, turnOnLed)
@@ -134,78 +132,88 @@ TEST(LowActiveLedTests, turnOffLed)
 
 // ####################################################################
 
-TEST_GROUP(BlinkLedTests)
+TEST_GROUP(BlinkLedTests) {
+
+Led      led;
+Pin      pin;
+unsigned blinkPeriod = 150;
+
+void setup()
 {
-    Led      led;
-    Pin      pin;
-    unsigned blinkPeriod = 150;
+    pin = PinMock_create("led", true);
+    led = Led_Create(pin, false);
+    millis_set(0);
+    Led_StartBlink(led);
+}
 
-    void setup()
-    {
-        pin = PinMock_create("led", true);
-        led = Led_Create(pin, false);
-        millis_set(0);
-        Led_StartBlink(led);
-    }
+void teardown()
+{
+    Led_Destroy(led);
+    PinMock_destroy(pin);
+}
 
-    void teardown()
-    {
-        Led_Destroy(led);
-        PinMock_destroy(pin);
-    }
+// Helpers
 
-    // Helpers
+void checkBlinkCycleLed(unsigned blinkCount)
+{
+    unsigned msec = 0;
+    char     str[17];
+    for (unsigned i = 0; i < blinkCount; i++) {
+        sprintf(str, "Cycle %u", i);
 
-    void checkBlinkCycleLed(unsigned blinkCount)
-    {
-        unsigned msec = 0;
-        char     str[17];
-        for (unsigned i = 0; i < blinkCount; i++) {
-            sprintf(str, "Cycle %u", i);
-
-            Led_Task();
-            CHECK_TRUE_TEXT(Pin_Read(pin) == true, str);
-            msec += blinkPeriod;
-            millis_set(msec);
-
-            Led_Task();
-            CHECK_TRUE_TEXT(Pin_Read(pin) == false, str);
-            if (i == blinkCount - 1) {
-                msec += 5 * blinkPeriod;
-            }
-            else {
-                msec += blinkPeriod;
-            }
-            millis_set(msec);
-        }
-    }
-
-    void startLedTaskInTime(unsigned msec)
-    {
         Led_Task();
-        if (msec) {
-            millis_set(msec - 1);
-        }
-        Led_Task();
+        CHECK_TRUE_TEXT(Pin_Read(pin) == true, str);
+        msec += blinkPeriod;
         millis_set(msec);
-        Led_Task();
-        millis_set(msec + 1);
-        Led_Task();
-    }
 
-    void incrementTimeLed(bool exceptBlink, unsigned start_ms)
-    {
-        startLedTaskInTime(start_ms);
-        if (exceptBlink) {
-            checkPin(true);
+        Led_Task();
+        CHECK_TRUE_TEXT(Pin_Read(pin) == false, str);
+        if (i == blinkCount - 1) {
+            msec += 5 * blinkPeriod;
         }
         else {
-            checkPin(false);
+            msec += blinkPeriod;
         }
+        millis_set(msec);
+    }
+}
 
-        startLedTaskInTime(start_ms + blinkPeriod);
+/**
+ * @brief  Запустить задачу Led_Task() до заданного времени в заданное время и после
+ * @param  msec:
+ */
+void processLedTaskInTime(unsigned msec)
+{
+    Led_Task();
+    if (msec > 0) {
+        millis_set(msec - 1);
+        Led_Task();
+    }
+    millis_set(msec);
+    Led_Task();
+    millis_set(msec + 1);
+    Led_Task();
+}
+
+/**
+ * @brief  Проверяет одну фазу мигания начиная с времени start_ms
+ *         Проверяет первую фазу, потом устаналвиает время через период и проверяет вторую фазу
+ * @param  exceptBlink:
+ * @param  start_ms:
+ */
+void incrementTimeLed(bool exceptBlink, unsigned start_ms)
+{
+    processLedTaskInTime(start_ms);
+    if (exceptBlink) {
+        checkPin(true);
+    }
+    else {
         checkPin(false);
     }
+
+    processLedTaskInTime(start_ms + blinkPeriod);
+    checkPin(false);
+}
 
 }; // TEST_GROUP(BlinkLedTests)
 
@@ -262,6 +270,52 @@ TEST(BlinkLedTests, detailed_blink2)
     incrementTimeLed(false, ms += 2 * blinkPeriod);
 
     incrementTimeLed(true, ms += 2 * blinkPeriod);
+}
+
+#define PROCESS_STAGE_BLINK(expected_pin_state) \
+    do {                                        \
+        Led_Task();                             \
+        checkPin(expected_pin_state);           \
+        millis_set(millis() + blinkPeriod);     \
+    } while (0)
+
+#define PROCESS_DELAY_STAGE_BLINK() \
+    do {                            \
+        PROCESS_STAGE_BLINK(false); \
+        PROCESS_STAGE_BLINK(false); \
+        PROCESS_STAGE_BLINK(false); \
+        PROCESS_STAGE_BLINK(false); \
+        PROCESS_STAGE_BLINK(false); \
+    } while (0)
+
+TEST(BlinkLedTests, stop_blink)
+{
+    Led_SetBlinkCount(led, 3);
+    unsigned msec = 0;
+    millis_set(msec);
+    Led_Task();
+    checkPin(true);
+    Led_StopBlink(led);
+    checkPin(false);
+}
+
+TEST(BlinkLedTests, reset_after_change_blink_count)
+{
+    Led_SetBlinkCount(led, 3);
+    checkPin(true);
+
+    unsigned msec = 0;
+    millis_set(msec);
+
+    PROCESS_STAGE_BLINK(true);
+    PROCESS_STAGE_BLINK(false);
+    PROCESS_STAGE_BLINK(true);
+
+    Led_SetBlinkCount(led, 1);
+    PROCESS_STAGE_BLINK(true);
+    PROCESS_DELAY_STAGE_BLINK();
+    PROCESS_STAGE_BLINK(true);
+    PROCESS_DELAY_STAGE_BLINK();
 }
 
 // TODO Дописать тесты

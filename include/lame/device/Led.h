@@ -46,7 +46,22 @@ void Led_Toggle(Led);
  */
 void Led_Task();
 
+/**
+ * @brief  Запуск мигания. Сразу после запуска светодиод будет активным
+ */
 void Led_StartBlink(Led);
+
+/**
+ * @brief  Остановка мигания. после остановки светодиод будет выключенным
+ */
+void Led_StopBlink(Led);
+
+/**
+ * @brief  Проверка запущено ли мигание
+ * @return true - Мигание запущено
+ * @return false - Мигание остановлено
+ */
+bool Led_IsBlinkRunning(Led);
 
 /**
  * @brief  Установить количество миганий
