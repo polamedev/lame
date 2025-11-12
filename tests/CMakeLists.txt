@@ -9,6 +9,10 @@ project(
     LANGUAGES C CXX
 )
 
+# Добавляем интерфейсную библиотеку с настройками библиотеки lame
+add_library(lame-config INTERFACE)
+target_include_directories(lame-config INTERFACE config)
+
 # Объявляем пустую библиотеку порта для успешной сборки тестов
 add_library(lame-empty-port INTERFACE)
 add_library(lame-port ALIAS lame-empty-port)

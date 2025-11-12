@@ -1,7 +1,6 @@
 #include "Led.h"
 
-// TODO
-// #include <lame_config.h>
+#include <lameConfig.h>
 
 #include <lame/utils/SoftTimer.h>
 
@@ -16,8 +15,7 @@ typedef struct Led_Impl {
     SoftTimer timer;
 } Led_Impl;
 
-// TODO LEDS_QTY задавать из конфига
-#define LEDS_QTY 5
+#define LEDS_QTY LAME_CONF_LEDS_QTY
 
 static Led_Impl leds[LEDS_QTY];
 static size_t   freeLedIndex = 0;

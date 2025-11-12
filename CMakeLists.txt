@@ -82,7 +82,7 @@ target_include_directories(lame-base
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(lame-base PRIVATE lame-interface)
+target_link_libraries(lame-base PRIVATE lame-interface lame-config)
 
 
 ######   lame    ######
@@ -111,7 +111,7 @@ target_include_directories(lame
     include/lame/utils
 )
 
-target_link_libraries(lame PUBLIC lame-base lame-port PRIVATE lame-interface)
+target_link_libraries(lame PUBLIC lame-base lame-port PRIVATE lame-interface lame-config)
 
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Добавление других таргетов
