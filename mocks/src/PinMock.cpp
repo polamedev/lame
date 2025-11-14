@@ -4,7 +4,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-struct Pin_Impl {
+struct PinImpl {
     MockSupport *mock;
     bool    currentState;
     bool         isSpy;
@@ -39,7 +39,7 @@ void Pin_Toggle(Pin self)
 
 Pin PinMock_create(const char *mockName, bool isSpy)
 {
-    Pin pin    = (Pin)calloc(1, sizeof(Pin_Impl));
+    Pin pin    = (Pin)calloc(1, sizeof(PinImpl));
     pin->isSpy = isSpy;
     pin->mock  = &mock(mockName);
     return pin;

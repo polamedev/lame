@@ -6,7 +6,7 @@ extern "C" {
 
 #include <stdbool.h>
 
-typedef struct Pin_Impl *Pin;
+typedef struct PinImpl *Pin;
 
 bool Pin_Read(const Pin handle);
 void Pin_Write(Pin handle, bool state);
